@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { ContactShadows, Environment, Html, OrbitControls } from '@react-three/drei'
+import { Html, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import type { ComponentId } from '../services/investigation'
 
@@ -68,4 +68,28 @@ function Skid({ selected, onSelect }: Props) { return <group rotation={[0, -.36,
   <Tag position={[-2.65, 1.47, -.8]} label="PLC-7" value="LINKED" onClick={() => onSelect('Control cabinet')} />
   <Tag position={[2.6, 1.25, -1.05]} label="FLO-12" value="38 L/min" onClick={() => onSelect('Flow sensor')} />
 </group> }
-export default function MachineScene(props: Props) { return <Canvas shadows dpr={[1, 1.45]} camera={{ position: [6.6, 4.1, 8.7], fov: 38 }} gl={{ antialias: true, powerPreference: 'high-performance' }}><color attach="background" args={['#081315']} /><fog attach="fog" args={['#081315', 9, 18]} /><ambientLight intensity={.45} /><hemisphereLight args={['#a8ebe0', '#091416', 1.15]} /><spotLight position={[2.5, 7, 5]} angle={.52} penumbra={.85} intensity={100} color="#c2fff2" castShadow shadow-mapSize={[1024, 1024]} /><pointLight position={[-4, 2, 2]} intensity={21} color="#378bff" /><Skid {...props} /><ContactShadows position={[0, -.99, 0]} opacity={.55} scale={10} blur={2.4} far={4} /><OrbitControls enablePan={false} minDistance={6} maxDistance={11} maxPolarAngle={Math.PI / 2.06} target={[0, .2, 0]} /><Environment preset="city" /></Canvas> }
+export default function MachineScene(props: Props) {
+  return <Canvas
+    shadows
+    dpr={[1, 1.25]}
+    camera={{ position: [6.6, 4.1, 8.7], fov: 38, near: .1, far: 60 }}
+    gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+    resize={{ scroll: false, debounce: { scroll: 50, resize: 0 } }}
+    style={{ display: 'block', width: '100%', height: '100%' }}
+    onCreated={({ gl, scene }) => {
+      gl.setClearColor('#081315', 1)
+      gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25))
+      scene.background = new THREE.Color('#081315')
+    }}
+  >
+    <fog attach="fog" args={['#081315', 9, 18]} />
+    <ambientLight intensity={.7} />
+    <hemisphereLight args={['#b8fff1', '#0a1618', 1.35]} />
+    <directionalLight position={[4, 7, 5]} intensity={3.5} color="#d2fff6" castShadow shadow-mapSize={[1024, 1024]} />
+    <pointLight position={[-4, 2.8, 2.5]} intensity={26} color="#378bff" />
+    <pointLight position={[2.8, 1.8, -2]} intensity={14} color="#55e0c4" />
+    <Skid {...props} />
+    <mesh position={[0, -.995, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[15, 15]} /><shadowMaterial transparent opacity={.3} /></mesh>
+    <OrbitControls enablePan={false} minDistance={6} maxDistance={11} maxPolarAngle={Math.PI / 2.06} target={[0, .2, 0]} />
+  </Canvas>
+}
